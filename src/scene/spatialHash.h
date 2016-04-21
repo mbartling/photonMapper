@@ -18,4 +18,4 @@ class mHash{
 };
 
 
-// spatialHash = unordered_map<Point, Photon, mHash>(); //Create the Spatial Hash
+// spatialHash = unordered_map<Point, Photon, mHash(radius)>(); //Create the Spatial Hash

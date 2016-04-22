@@ -934,6 +934,7 @@ void Parser::parseObj(string inputfile, Scene* scene, const Material& parent, Tr
 
      tmesh = new Trimesh( scene, new Material(ke, ka, ks, kd, kr,kt, mtr.shininess, mtr.ior), transform);
     }else{
+     std::cerr << "Note: OBJ file missing material" << std::endl;
      tmesh = new Trimesh( scene, new Material(parent), transform);
     }
     for (size_t v = 0; v < shapes[i].mesh.positions.size() / 3; v++) {

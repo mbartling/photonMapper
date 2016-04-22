@@ -236,6 +236,7 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 	  	}
 
 	  }
+	  colorC += colorC%mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
@@ -335,3 +336,98 @@ void RayTracer::traceSetup(int w, int h)
 // void RayTracer::addCubeFace(int faceNum, std::string fileName){
 	
 // }
+
+Vec3d RayTracer::tracePhoton(photon& r, int depth)
+{
+	isect i;
+	Vec3d colorC;
+	// std::default_random_engine generator;
+  // std::normal_distribution<double> distribution(0.0,0.01);
+	if(scene->intersect(r, i)) {
+		// YOUR CODE HERE
+		Vec3d q = r.at(i.t);
+
+		// An intersection occurred!  We've got work to do.  For now,
+		// this code gets the material for the surface that was intersected,
+		// and asks that material to provide a color for the ray.  
+
+		// This is a great place to insert code for recursive ray tracing.
+		// Instead of just returning the result of shade(), add some
+		// more steps: add in the contributions from reflected and refracted
+		// rays.
+	  const Material& m = i.getMaterial();
+	  
+
+	  if(mSpatialHash.count(q)) mSpatialHash[q] += r;
+	  else mSpatialHash[q] = r.flux;
+
+	  if(!m.Refl() && !m.Trans()){
+	  	return;
+	  }	  
+	  colorC = m.shade(scene, r, i);
+	  if(depth <= 0) return colorC; //Vec3d(0.0, 0.0, 0.0); //Finish recursion
+	  if(m.Refl()){
+	  	// std::cout<< "HERE"<< std::endl;
+
+			Vec3d Rdir = -2.0*(r.getDirection()*i.N)*i.N + r.getDirection();
+			Rdir.normalize();
+			if(isDistributionRayTracing()){
+				// std::cout << "I AM HERE Too" << std::endl;
+				Vec3d V = scene->getCamera().getEye() - r.at(i.t) ;
+		    // V = -V;
+    		V.normalize();
+
+				Vec3d perterbR = CosWeightedRandomHemiDir2(Rdir);
+				double tmpP = Rdir*V;
+
+    		tmpP =  pow(max(0.0, tmpP), m.shininess(i));
+
+				// Rdir = Rdir + pow(Rdir * perterbR ,m.shininess(i)) * perterbR;
+				Rdir = Rdir + tmpP*perterbR;
+				Rdir.normalize();
+				// std::cout << Rdir << std::endl;
+			} 
+			photon R(q, Rdir, ray::REFLECTION, fluxDecreased);
+	  	colorC += m.kr(i)%tracePhoton(R, depth - 1);
+	  }
+
+	  // Now handle the Transmission (Refraction)
+	  if(m.Trans()){
+
+
+	  	Vec3d n = i.N;
+	  	Vec3d rd = r.getDirection();
+	  	Vec3d rcos = n*(-rd*n);
+	  	Vec3d rsin = rcos + rd;
+	  	double etai = 1.0;
+	  	double etat = m.index(i);
+	  	Vec3d tcos, tsin;
+	  	double eta;
+	  	if(rd*n < 0){
+	  		eta = etai/etat;
+	  		n = -n;
+	  	} else{
+	  		eta = etat/etai;
+	  	}
+	  	tsin = eta*rsin;
+	  	double TIR = 1 - tsin*tsin;
+	  	if(TIR >= 0){
+		  	tcos = n*sqrt(TIR);
+		  	Vec3d Tdir = tcos + tsin;
+		  	Tdir.normalize();  
+				ray T(q, Tdir, ray::REFRACTION, fluxDecreased);
+			  colorC += m.kt(i)%tracePhoton(T, depth - 1);
+	  	}
+
+	  }
+	} else {
+		// No intersection.  This ray travels to infinity, so we color
+		// it according to the background color, which in this (simple) case
+		// is just black.
+		if(haveCubeMap()){
+			colorC = environment->intersect(r);
+		}else
+			colorC = Vec3d(0.0, 0.0, 0.0);
+	}
+	return colorC;
+}

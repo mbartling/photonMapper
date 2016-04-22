@@ -34,7 +34,7 @@ public:
 	  : p(pp), d(dd), t(tt) {}
         ray(const ray& other) : p(other.p), d(other.d), t(other.t) {}
 	~ray() {}
-
+    // virtual ~ray(){}
 	ray& operator =( const ray& other ) 
 	{ p = other.p; d = other.d; t = other.t; return *this; }
 

@@ -237,6 +237,9 @@ public:
 	T operator []( int i ) const 
 		{ return n[i]; }
 
+	T x (void){return n[0];} /*READ ONLY*/
+	T y (void){return n[1];} /*READ ONLY*/
+	T z (void){return n[2];} /*READ ONLY*/
 	//---[ Arithmetic Operators ]----------------
 
 	Vec3<T> operator-( const Vec3<T>& a ) const { return Vec3<T>(n[0]-a[0],n[1]-a[1],n[2]-a[2]); }

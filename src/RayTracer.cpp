@@ -236,7 +236,7 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 	  	}
 
 	  }
-	  colorC += colorC%mSpatialHash[q].flux; // Flux will be an additive multiple of the color
+	  colorC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
@@ -358,8 +358,8 @@ Vec3d RayTracer::tracePhoton(photon& r, int depth)
 	  const Material& m = i.getMaterial();
 	  
 
-	  if(mSpatialHash.count(q)) mSpatialHash[q] += r;
-	  else mSpatialHash[q] = r.flux;
+	  if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
+	  else scene->mSpatialHash[q] = r.flux;
 
 	  if(!m.Refl() && !m.Trans()){
 	  	return;
@@ -387,7 +387,7 @@ Vec3d RayTracer::tracePhoton(photon& r, int depth)
 				Rdir.normalize();
 				// std::cout << Rdir << std::endl;
 			} 
-			photon R(q, Rdir, ray::REFLECTION, fluxDecreased);
+			photon R(q, Rdir, fluxDecreased, ray::REFLECTION);
 	  	colorC += m.kr(i)%tracePhoton(R, depth - 1);
 	  }
 
@@ -415,7 +415,7 @@ Vec3d RayTracer::tracePhoton(photon& r, int depth)
 		  	tcos = n*sqrt(TIR);
 		  	Vec3d Tdir = tcos + tsin;
 		  	Tdir.normalize();  
-				ray T(q, Tdir, ray::REFRACTION, fluxDecreased);
+				photon T(q, Tdir, fluxDecreased, ray::REFRACTION);
 			  colorC += m.kt(i)%tracePhoton(T, depth - 1);
 	  	}
 

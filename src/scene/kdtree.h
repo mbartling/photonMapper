@@ -3,6 +3,7 @@
 #define __KDTREE_H__
 
 #include "ray.h"
+#include "photon.h"
 #include "bbox.h"
 #include <vector>
 #include <list>

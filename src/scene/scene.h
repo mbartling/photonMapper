@@ -24,6 +24,9 @@
 #include "../vecmath/vec.h"
 #include "../vecmath/mat.h"
 #include "kdtree.h"
+#include "spatialHash.h"
+#include <unordered_map>
+
 class Light;
 class Scene;
 
@@ -290,9 +293,12 @@ public:
   
   KdTree<Geometry*> kdtree;
 
+
  public:
   // This is used for debugging purposes only.
   mutable std::vector<std::pair<ray*, isect*> > intersectCache;
+  // std::unordered_map<Vec3d, photon, mHash<photon>> mSpatialHash;
+  SpatialHash mSpatialHash;
 };
 
 #endif // __SCENE_H__

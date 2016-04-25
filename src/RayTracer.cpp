@@ -337,10 +337,11 @@ void RayTracer::traceSetup(int w, int h)
 	
 // }
 
-Vec3d RayTracer::tracePhoton(photon& r, int depth)
+void RayTracer::tracePhoton(photon& r, int depth)
 {
 	isect i;
 	Vec3d colorC;
+	Vec3d fluxDecreased;
 	// std::default_random_engine generator;
   // std::normal_distribution<double> distribution(0.0,0.01);
 	if(scene->intersect(r, i)) {
@@ -359,36 +360,21 @@ Vec3d RayTracer::tracePhoton(photon& r, int depth)
 	  
 
 	  if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
-	  else scene->mSpatialHash[q] = r.flux;
+	  else scene->mSpatialHash[q] = r;
 
-	  if(!m.Refl() && !m.Trans()){
-	  	return;
-	  }	  
-	  colorC = m.shade(scene, r, i);
-	  if(depth <= 0) return colorC; //Vec3d(0.0, 0.0, 0.0); //Finish recursion
+	  // if(!m.Refl() && !m.Trans()){
+	  // 	return;
+	  // }	  
+	  colorC = m.shade(scene, r, i); //Does this make sense?
+	  if(depth <= 0) return ; //Vec3d(0.0, 0.0, 0.0); //Finish recursion
 	  if(m.Refl()){
 	  	// std::cout<< "HERE"<< std::endl;
 
 			Vec3d Rdir = -2.0*(r.getDirection()*i.N)*i.N + r.getDirection();
 			Rdir.normalize();
-			if(isDistributionRayTracing()){
-				// std::cout << "I AM HERE Too" << std::endl;
-				Vec3d V = scene->getCamera().getEye() - r.at(i.t) ;
-		    // V = -V;
-    		V.normalize();
-
-				Vec3d perterbR = CosWeightedRandomHemiDir2(Rdir);
-				double tmpP = Rdir*V;
-
-    		tmpP =  pow(max(0.0, tmpP), m.shininess(i));
-
-				// Rdir = Rdir + pow(Rdir * perterbR ,m.shininess(i)) * perterbR;
-				Rdir = Rdir + tmpP*perterbR;
-				Rdir.normalize();
-				// std::cout << Rdir << std::endl;
-			} 
 			photon R(q, Rdir, fluxDecreased, ray::REFLECTION);
-	  	colorC += m.kr(i)%tracePhoton(R, depth - 1);
+	  	// colorC += m.kr(i)%tracePhoton(R, depth - 1);
+	  	tracePhoton(R, depth - 1);
 	  }
 
 	  // Now handle the Transmission (Refraction)
@@ -416,7 +402,8 @@ Vec3d RayTracer::tracePhoton(photon& r, int depth)
 		  	Vec3d Tdir = tcos + tsin;
 		  	Tdir.normalize();  
 				photon T(q, Tdir, fluxDecreased, ray::REFRACTION);
-			  colorC += m.kt(i)%tracePhoton(T, depth - 1);
+			  tracePhoton(T, depth - 1);
+			  // colorC += m.kt(i)%tracePhoton(T, depth - 1);
 	  	}
 
 	  }
@@ -424,10 +411,12 @@ Vec3d RayTracer::tracePhoton(photon& r, int depth)
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
 		// is just black.
-		if(haveCubeMap()){
-			colorC = environment->intersect(r);
-		}else
-			colorC = Vec3d(0.0, 0.0, 0.0);
+	
+		// if(haveCubeMap()){
+		// 	colorC = environment->intersect(r);
+		// }else
+		// 	colorC = Vec3d(0.0, 0.0, 0.0);
 	}
-	return colorC;
+	// return colorC;
+	return;
 }

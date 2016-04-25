@@ -31,11 +31,14 @@ class myMap{
   public:
 
     photon operator[] (const Vec3d& point) const{
-      return _map[_hash(point)];
+      // if (_map.count(point))
+        return _map[_hash(point)];
+      // else return photon();
     }
     photon& operator[] (const Vec3d& point){
       return _map[_hash(point)];
     }
+    int count(const Vec3d& point ){return _map.count(_hash(point));}
 
 };
 

@@ -21,7 +21,7 @@ public:
   Vec3d tracePixelBlock(const pixelBlock pxB);
 	Vec3d trace(double x, double y);
 	Vec3d traceRay(ray& r, int depth);
-  Vec3d tracePhoton(photon& r, int depth);
+  void tracePhoton(photon& r, int depth);
 
 	void getBuffer(unsigned char *&buf, int &w, int &h);
 	double aspectRatio();

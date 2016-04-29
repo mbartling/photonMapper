@@ -3,6 +3,8 @@
 #define __KDTREE_H__
 
 #include "ray.h"
+#include "photon.h"
+
 #include "bbox.h"
 #include <vector>
 #include <list>
@@ -24,6 +26,10 @@ public:
   void delete_tree() {delete_tree(root);}
   bool intersect(ray& r, isect& i) const;
   bool intersectLocal(ray& r, isect& i) const;
+  
+  bool intersect(photon& r, isect& i) const;
+  bool intersectLocal(photon& r, isect& i) const;
+
   void verify_objectsR(KDNode<Obj>* node, std::list<Obj>& mList);
   bool verify_objects(void);
 
@@ -50,6 +56,9 @@ class KDNode{
     // KDNode(void):_left(nullptr), _right(nullptr){}
     bool intersect(ray& r, isect& i) const;
     bool intersectLocal(ray& r, isect& i) const;
+    bool intersect(photon& r, isect& i) const;
+    bool intersectLocal(photon& r, isect& i) const;
+
     bool isLeaf(void) const {return (_left == nullptr && _right == nullptr);}
     bool hasGeometry(void) const {return _geometry_p.size() > 0;}
     // Axis is chosen as axis = depth % 3;
@@ -94,16 +103,16 @@ double getOptimalSplittingPlane(KDNode<Obj>* node, int depth, const std::list<Ob
           return false;
         else if(left.first < right.first)
           return true;
-          else if(left.second && !right.second)
-            return true;
-          else if(!left.second && right.second)
-            return false;
-          else
-            return true;
+        else if(left.second && !right.second)
+          return true;
+        else if(!left.second && right.second)
+          return false;
+        else
+          return true;
       }
   };
 
-  sort(SplittingPlanes.begin(), SplittingPlanes.end(), sort_condition_second()); 
+  // sort(SplittingPlanes.begin(), SplittingPlanes.end(), sort_condition_second()); 
 
   /*******************************
   *******************************/
@@ -470,5 +479,181 @@ bool KdTree<Obj>::intersectLocal(ray& r, isect& i) const {
   int depth = _depth;
   return IntersectLocal(root, r, i, depth);
 }
+
+//=============================================================
+template <typename Obj>
+bool Intersect(KDNode<Obj>* node, photon& r, isect& i, int depth){
+  double tMin;
+  double tMax;
+  Vec3d R0 = r.getPosition();
+  Vec3d Rd = r.getDirection();
+  bool have_one = false;
+  int axis = depth % 3;
+  if(node != nullptr){
+    // If it is a leaf and Not empty
+    if(node->isLeaf()){
+        if(node->hasGeometry()) return node->intersect(r,i);
+        else return false;  
+    }
+
+    if(node->_bounds.intersect(r, tMin, tMax)){
+
+      //Get who is near and who is far
+
+      // double vd = Rd[axis];
+      // double v = node->_t - R0[axis];
+      // double ts = v/vd;
+      double s = node->_t;
+      double a = r.at(tMin)[axis];
+      double b = r.at(tMax)[axis];
+
+      if(a <= s){
+        if(b < s){
+          have_one = Intersect(node->_left, r, i, depth-1);
+        } 
+        else{
+          have_one = Intersect(node->_left, r, i, depth - 1);
+          isect cur;
+          if(Intersect(node->_right, r, cur, depth - 1)){
+            if(!have_one || (cur.t < i.t)){
+            i = cur;
+            have_one = true;
+            }
+          }
+        }
+      }
+      else{
+        if(b > s){
+          have_one = Intersect(node->_right, r, i, depth-1);
+        } else{
+          have_one = Intersect(node->_right, r, i, depth - 1);
+          isect cur;
+          if(Intersect(node->_left, r, cur, depth - 1)){
+            if(!have_one || (cur.t < i.t)){
+            i = cur;
+            have_one = true;
+            }
+          }
+        }
+      }
+    } // If photon intersects node
+  } //End if
+  return have_one;
+}
+
+template <typename Obj>
+bool IntersectLocal(KDNode<Obj>* node, photon& r, isect& i, int depth){
+  double tMin;
+  double tMax;
+  Vec3d R0 = r.getPosition();
+  Vec3d Rd = r.getDirection();
+  bool have_one = false;
+  int axis = depth % 3;
+  if(node != nullptr){
+    // If it is a leaf and Not empty
+    if(node->_bounds.intersect(r, tMin, tMax)){
+      if(node->isLeaf()){
+        if(node->hasGeometry()) return node->intersectLocal(r,i);
+        else return false;  
+      }
+
+      //Get who is near and who is far
+
+      double vd = Rd[axis];
+      double v = node->_t - R0[axis];
+      double ts = v/vd;
+      double s = node->_t;
+      double a = r.at(tMin)[axis];
+      double b = r.at(tMax)[axis];
+
+      if(a <= s){
+        if(b < s){
+          have_one = IntersectLocal(node->_left, r, i, depth-1);
+        } 
+        else{
+          have_one = IntersectLocal(node->_left, r, i, depth - 1);
+          isect cur;
+          if(IntersectLocal(node->_right, r, cur, depth - 1)){
+            if(!have_one || (cur.t < i.t)){
+            i = cur;
+            have_one = true;
+            }
+          }
+        }
+      }
+      else{
+        if(b > s){
+          have_one = IntersectLocal(node->_right, r, i, depth-1);
+        } else{
+          have_one = IntersectLocal(node->_right, r, i, depth - 1);
+          isect cur;
+          if(IntersectLocal(node->_left, r, cur, depth - 1)){
+            if(!have_one || (cur.t < i.t)){
+            i = cur;
+            have_one = true;
+            }
+          }
+
+        }
+      }
+    } // If photon intersects node
+  } //End if
+  return have_one;
+
+}
+
+
+template<typename Obj>
+bool KDNode<Obj>::intersect(photon& r, isect& i) const {
+  double tmin = 0.0;
+  double tmax = 0.0;
+  bool have_one = false;
+  // typedef std::list<Obj>::const_iterator iter;
+  using iter = typename std::list<Obj>::const_iterator;
+  for(iter j = _geometry_p.begin(); j != _geometry_p.end(); ++j) {
+    isect cur;
+    if( (*j)->intersect(r, cur) ) {
+      if(!have_one || (cur.t < i.t)) {
+        i = cur;
+        have_one = true;
+      }
+    }
+  }
+  if(!have_one) i.setT(1000.0);
+  return have_one;
+}
+
+template<typename Obj>
+bool KDNode<Obj>::intersectLocal(photon& r, isect& i) const {
+  double tmin = 0.0;
+  double tmax = 0.0;
+  bool have_one = false;
+  // typedef std::list<Obj>::const_iterator iter;
+  using iter = typename std::list<Obj>::const_iterator;
+  for(iter j = _geometry_p.begin(); j != _geometry_p.end(); ++j) {
+    isect cur;
+    if( (*j)->intersectLocal(r, cur) ) {
+      if(!have_one || (cur.t < i.t)) {
+        i = cur;
+        have_one = true;
+      }
+    }
+  }
+  if(!have_one) i.setT(1000.0);
+  return have_one;
+}
+
+
+template<typename Obj>
+bool KdTree<Obj>::intersect(photon& r, isect& i) const {
+  int depth = _depth;
+  return Intersect(root, r, i, depth);
+}
+template<typename Obj>
+bool KdTree<Obj>::intersectLocal(photon& r, isect& i) const {
+  int depth = _depth;
+  return IntersectLocal(root, r, i, depth);
+}
+
 
 #endif

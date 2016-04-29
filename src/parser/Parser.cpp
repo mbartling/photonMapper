@@ -929,7 +929,10 @@ void Parser::parseObj(string inputfile, Scene* scene, const Material& parent, Tr
       Vec3d ka(mtr.ambient[0], mtr.ambient[1], mtr.ambient[2]      );
       Vec3d ks(mtr.specular[0], mtr.specular[1], mtr.specular[2]     );
       Vec3d kd(mtr.diffuse[0], mtr.diffuse[1], mtr.diffuse[2]      );
-      Vec3d kt(mtr.transmittance[0], mtr.transmittance[1], mtr.transmittance[2]);
+      // Vec3d kt(mtr.transmittance[0], mtr.transmittance[1], mtr.transmittance[2]);
+      Vec3d kt(mtr.dissolve, mtr.dissolve, mtr.dissolve);
+      std::cout << mtr.transmittance[0]<< " " << mtr.transmittance[1] << " " <<  mtr.transmittance[2] << std::endl;
+      std::cout << mtr.dissolve << std::endl;
       Vec3d kr = ks;
 
      tmesh = new Trimesh( scene, new Material(ke, ka, ks, kd, kr,kt, mtr.shininess, mtr.ior), transform);

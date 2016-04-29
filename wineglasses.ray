@@ -8,31 +8,19 @@ camera {
 }
 
 point_light {
-  position = (4, 4, 0);
+  position = (104, 104, 104);
   color = (.5, .5, .5);
-  constant_attenuation_coeff= 0.25;
+  constant_attenuation_coeff= 0.55;
   linear_attenuation_coeff = 0.003372407;
   quadratic_attenuation_coeff = 0.000045492;  
 }
 
-directional_light {
-  direction = (0, -1, 0);
-  colour = (1.0, 1.0, 1.0);
-}
-directional_light {
-  direction = (0, -0.5, -1);
-  colour = (1.0, 1.0, 1.0);
-}
-directional_light {
-  direction = (0,1,0);
-  colour = (0.2,0.2,0.2);
-}
 
 rotate(0,1,0,1.57,
   scale(0.4,
     translate(0,-0.75,2,
       polymesh {
-        objfile = "WineGlasses4.obj"; 
+        objfile = "WineGlasses5.obj"; 
         material = { 
           ambient = (0.0,0.0,0.0); 
           diffuse = (0.1,0.1,1.0);

@@ -41,7 +41,7 @@ Vec3d DirectionalLight::getDirection(const Vec3d& P) const
   return -orientation;
 }
 
-// Random Sample the sphere
+// Random Sample the plane that contains the image of the scene bounds
 std::tuple<Vec3d,Vec3d> DirectionalLight::firePhoton(void){
   double x = (double)rand()/(double)RAND_MAX;
   double y = (double)rand()/(double)RAND_MAX;

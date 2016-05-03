@@ -9,7 +9,7 @@ using std::max;
 
 #include "scene.h"
 #include "../ui/TraceUI.h"
-
+#include <tuple>
 class Light
 	: public SceneElement
 {
@@ -20,9 +20,11 @@ public:
 	virtual Vec3d getDirection (const Vec3d& P) const = 0;
 
 	virtual std::tuple<Vec3d,Vec3d> firePhoton() const = 0;
+	virtual bool hasPhotonsAbility(void) const = 0;
 protected:
-	Light(Scene *scene, const Vec3d& col) : SceneElement(scene), color(col) {}
+	Light(Scene *scene, const Vec3d& col) : SceneElement(scene), color(col), hasPhotons(false) {}
 
+	bool hasPhotons;
 	Vec3d color;
 
 public:
@@ -41,6 +43,7 @@ public:
 	virtual Vec3d getColor() const;
 	virtual Vec3d getDirection(const Vec3d& P) const;
   virtual std::tuple<Vec3d,Vec3d>  firePhoton() const;
+	virtual bool hasPhotonsAbility(void) const { std::cout << "Directional Light" << std::endl; return false;}
 
 protected:
 	Vec3d 		orientation;
@@ -61,13 +64,13 @@ public:
 		constantTerm(constantAttenuationTerm), 
 		linearTerm(linearAttenuationTerm),
 		quadraticTerm(quadraticAttenuationTerm) 
-		{}
+		{ this->hasPhotons = true;}
 
 	virtual Vec3d shadowAttenuation(const ray& r, const Vec3d& pos) const;
 	virtual double distanceAttenuation(const Vec3d& P) const;
 	virtual Vec3d getColor() const;
 	virtual Vec3d getDirection(const Vec3d& P) const;
-
+	virtual bool hasPhotonsAbility(void) const { std::cout << "Point Light" << std::endl; return true;}
 	void setAttenuationConstants(float a, float b, float c)
 	{
 		constantTerm = a;

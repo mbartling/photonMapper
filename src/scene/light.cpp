@@ -42,14 +42,14 @@ Vec3d DirectionalLight::getDirection(const Vec3d& P) const
 }
 
 // Random Sample the plane that contains the image of the scene bounds
-std::tuple<Vec3d,Vec3d> DirectionalLight::firePhoton(void){
+std::tuple<Vec3d,Vec3d> DirectionalLight::firePhoton(void) const {
   double x = (double)rand()/(double)RAND_MAX;
   double y = (double)rand()/(double)RAND_MAX;
   double z = (double)rand()/(double)RAND_MAX;
 
   Vec3d sample(x, y, z);
   sample.normalize();
-
+  Vec3d position; // Need to set this
   return std::make_tuple(position, getDirection(sample));
 }
 
@@ -81,7 +81,7 @@ Vec3d PointLight::getDirection(const Vec3d& P) const
 }
 
 // Random Sample the sphere
-std::tuple<Vec3d,Vec3d> PointLight::firePhoton(void){
+std::tuple<Vec3d,Vec3d> PointLight::firePhoton(void) const {
   double x = (double)rand()/(double)RAND_MAX;
   double y = (double)rand()/(double)RAND_MAX;
   double z = (double)rand()/(double)RAND_MAX;
@@ -89,7 +89,8 @@ std::tuple<Vec3d,Vec3d> PointLight::firePhoton(void){
   Vec3d sample(x, y, z);
   sample.normalize();
 
-  return std::make_tuple(position, getDirection(sample));
+  // return std::make_tuple(position, getDirection(sample));
+  return std::make_tuple(Vec3d(0.0,0.0,0.0), getDirection(sample));
 }
 Vec3d PointLight::shadowAttenuation(const ray& r, const Vec3d& p) const
 {

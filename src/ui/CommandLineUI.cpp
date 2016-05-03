@@ -24,7 +24,7 @@ CommandLineUI::CommandLineUI( int argc, char* const* argv )
 	haveCubeMaps = false;
 	char *ptr;
 	// while( (i = getopt( argc, argv, "tr:w:h:" )) != EOF )
-	while( (i = getopt( argc, argv, "r:w:h:s:t:L:T:D:F:R:B:x:dh" )) != EOF )
+	while( (i = getopt( argc, argv, "r:w:h:s:t:L:T:D:F:R:B:x:f:p:dh" )) != EOF )
 	{
 		switch( i )
 		{
@@ -82,6 +82,12 @@ CommandLineUI::CommandLineUI( int argc, char* const* argv )
 				usage();
 				exit(1);
 				break;
+			case 'f':
+				m_flux = Vec3d((double)atoi(optarg),(double)atoi(optarg),(double)atoi(optarg));
+				break;
+			case 'p':
+				m_numPhotons = atoi(optarg);
+				break ;
 
 
 			default:
@@ -151,6 +157,10 @@ int CommandLineUI::run()
 		int height = (int)(width / raytracer->aspectRatio() + 0.5);
 
 		raytracer->traceSetup( width, height );
+
+		// PHOTON MAP
+		raytracer->firePhotons(m_numPhotons, m_flux);
+
 		std::vector<pixelBlock> pxBList =  getBlockList(width, height, 10, 10);
 
 		int numThreads = (getNumThreads() > 0) ? getNumThreads() : std::thread::hardware_concurrency();

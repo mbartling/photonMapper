@@ -45,6 +45,29 @@ Vec3d RayTracer::trace(double x, double y)
   return ret;
 }
 
+void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
+{
+  // Clear out the ray cache in the scene for debugging purposes,
+  for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
+       litr != scene->endLights(); ++litr )
+  {
+
+    Light* pLight  = *litr;
+
+    if(!pLight->hasPhotonsAbility()) 
+    	continue;
+  	std::cout << "Firing Photons" << std::endl;
+  	for(int i = 0; i < numPhotons; i++ ){
+		  std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton();
+			photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
+			// std::cout << std::get<0>(thing) << " " << std::get<1>(thing) << std::endl;
+			tracePhoton(r, traceUI->getDepth());
+  	}
+
+  }
+  return;
+}
+
 Vec3d RayTracer::tracePixelBlock(const pixelBlock pxB){
 	for(int j = pxB.yMin; j < pxB.yMax; j++){
 		for(int i = pxB.xMin; i < pxB.xMax; i++){
@@ -236,7 +259,10 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 	  	}
 
 	  }
-	  colorC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
+	  if(scene->mSpatialHash.count(q)) {
+	  	// std::cout << "FLUX: " << scene->mSpatialHash[q].flux << std::endl;
+	  	colorC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
+		}
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
@@ -358,14 +384,15 @@ void RayTracer::tracePhoton(photon& r, int depth)
 		// rays.
 	  const Material& m = i.getMaterial();
 	  
-
+	  fluxDecreased = r.flux; // Need to update this
+	  // std::cout << "HERE" << std::endl;
 	  if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 	  else scene->mSpatialHash[q] = r;
 
 	  // if(!m.Refl() && !m.Trans()){
 	  // 	return;
 	  // }	  
-	  colorC = m.shade(scene, r, i); //Does this make sense?
+	  // colorC = m.shade(scene, r, i); //Does this make sense?
 	  if(depth <= 0) return ; //Vec3d(0.0, 0.0, 0.0); //Finish recursion
 	  if(m.Refl()){
 	  	// std::cout<< "HERE"<< std::endl;

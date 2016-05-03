@@ -11,7 +11,7 @@
 #pragma warning(disable : 4786)
 
 #include <string>
-
+#include "../vecmath/vec.h"
 using std::string;
 
 class RayTracer;
@@ -21,7 +21,7 @@ public:
 	TraceUI() : m_nDepth(0), m_nSize(512), m_displayDebuggingInfo(false),
                     m_shadows(true), m_smoothshade(true), raytracer(0),
                     m_nFilterWidth(1), m_numThreads(0), superSampleX(0),
-                    DRT(false)
+                    DRT(false), m_numPhotons(0), m_flux(0)
                     {}
 
 	virtual int	run() = 0;
@@ -73,6 +73,8 @@ protected:
 	int m_nFilterWidth;  // width of cubemap filter
 	int m_numThreads;
 	bool DRT;
+	Vec3d m_flux;
+	int m_numPhotons;
 };
 
 #endif

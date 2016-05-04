@@ -78,7 +78,8 @@ void TraceGLWindow::draw()
 	glClear( GL_COLOR_BUFFER_BIT );
 
 	unsigned char* buf;
-	raytracer->getBuffer(buf, m_nDrawWidth, m_nDrawHeight);
+	unsigned char* bufP;
+	raytracer->getBuffer(buf, bufP, m_nDrawWidth, m_nDrawHeight);
 
 	if ( buf ) {
 		// just copy image to GLwindow conceptually
@@ -115,8 +116,9 @@ void TraceGLWindow::resizeWindow(int width, int height)
 void TraceGLWindow::saveImage(char *iname)
 {
 	unsigned char* buf;
+	unsigned char* bufP;
 
-	raytracer->getBuffer(buf, m_nDrawWidth, m_nDrawHeight);
+	raytracer->getBuffer(buf, bufP, m_nDrawWidth, m_nDrawHeight);
 	if (buf)
 		writeBMP(iname, m_nDrawWidth, m_nDrawHeight, buf); 
 }

@@ -10,6 +10,7 @@
 #include "pixelblock.h"
 #include "../RayTracer.h"
 #include <thread>
+#include "../imageProcessing/filters.h"
 
 using namespace std;
 
@@ -194,12 +195,24 @@ int CommandLineUI::run()
 
 		// save image
 		unsigned char* buf;
+		unsigned char* bufP; //Photon Map
 
-		raytracer->getBuffer(buf, width, height);
+		raytracer->getBuffer(buf, bufP, width, height);
 
+		unsigned char* bufOut = new unsigned char[width*height*3];
+
+		applyGaussian(bufP, width, height, bufOut);
+		mergeImages(bufOut, bufOut, buf, width, height);
+		
 		if (buf)
 			writeBMP(imgName, width, height, buf);
+		if (bufP)
+			writeBMP(strcat(imgName , "PM"), width, height, bufP);
+		if (bufOut)
+			writeBMP(strcat(imgName , "FINAL.bmp"), width, height, bufOut);
 
+
+		delete [] bufOut;
 		double t=(double)(end-start)/CLOCKS_PER_SEC;
 //		int totalRays = TraceUI::resetCount();
 //		std::cout << "total time = " << t << " seconds, rays traced = " << totalRays << std::endl;

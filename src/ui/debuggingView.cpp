@@ -511,7 +511,8 @@ void DebuggingView::drawCamera()
 
 	int bufWidth, bufHeight;
 	unsigned char *buffer;
-	raytracer->getBuffer( buffer, bufWidth, bufHeight );
+	unsigned char *bufferP;
+	raytracer->getBuffer( buffer, bufferP, bufWidth, bufHeight );
 
 	static GLuint texName = 0;
 	if( texName == 0 )

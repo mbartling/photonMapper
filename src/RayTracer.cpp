@@ -34,17 +34,19 @@ bool debugMode = false;
 // enter the main ray-tracing method, getting things started by plugging
 // in an initial ray weight of (0.0,0.0,0.0) and an initial recursion depth of 0.
 
-Vec3d RayTracer::trace(double x, double y)
+std::pair<Vec3d,Vec3d> RayTracer::trace(double x, double y)
 {
   // Clear out the ray cache in the scene for debugging purposes,
   if (TraceUI::m_debug) scene->intersectCache.clear();
   ray r(Vec3d(0,0,0), Vec3d(0,0,0), ray::VISIBILITY);
   scene->getCamera().rayThrough(x,y,r);
   std::pair<Vec3d, Vec3d> mPair = traceRay(r, traceUI->getDepth()); 
-  Vec3d ret = mPair.first;
+  Vec3d mColor = mPair.first;
+  Vec3d mPhoton = mPair.second;
   // Vec3d ret = traceRay(r, traceUI->getDepth());
-  ret.clamp();
-  return ret;
+  mColor.clamp();
+  mPhoton.clamp();
+  return std::make_pair(mColor, mPhoton);
 }
 
 void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
@@ -81,6 +83,8 @@ Vec3d RayTracer::tracePixelBlock(const pixelBlock pxB){
 Vec3d RayTracer::tracePixel(int i, int j)
 {
 	Vec3d col(0,0,0);
+	Vec3d pCol(0,0,0);
+
 	if( ! sceneLoaded() ) return col;
 
 	//NOTE top left is (px + 0.0, py + 0.0)
@@ -91,9 +95,12 @@ Vec3d RayTracer::tracePixel(int i, int j)
 	double y = double(j)/double(buffer_height);
 
 	unsigned char *pixel = buffer + ( i + j * buffer_width ) * 3;
+	unsigned char *pixelP = bufferP + ( i + j * buffer_width ) * 3;
+
 	if(SuperSampleX > 0){
 	double subPx = 1.0/((double) SuperSampleX);
 	std::vector<Vec3d> Samples;
+	std::vector<Vec3d> PSamples;
 
 	double xx, yy;
 	for(int ix = 0; ix < SuperSampleX; ix++){
@@ -112,7 +119,9 @@ Vec3d RayTracer::tracePixel(int i, int j)
 				yy = y + subPx*(double(iy))/double(buffer_height);
 
 			}
-			Samples.push_back(trace(xx, yy));
+			std::pair<Vec3d, Vec3d> mPair = trace(xx, yy);
+			Samples.push_back(mPair.first);
+			PSamples.push_back(mPair.second);
 		
 		}		
 	}
@@ -121,15 +130,26 @@ Vec3d RayTracer::tracePixel(int i, int j)
 		col = col + sample;
 	}
 	col = col / (double(SuperSampleX*SuperSampleX));
+
+	for(auto& sample: PSamples){
+		pCol = pCol + sample;
+	}
+	pCol = pCol / (double(SuperSampleX*SuperSampleX));
 }
 else{
-	col = trace(x, y);
-
+	std::pair<Vec3d, Vec3d> mPair = trace(x, y);
+	col = mPair.first;
+	pCol = mPair.second;
 }
 
 	pixel[0] = (int)( 255.0 * col[0]);
 	pixel[1] = (int)( 255.0 * col[1]);
 	pixel[2] = (int)( 255.0 * col[2]);
+
+	pixelP[0] = (int)( 255.0 * pCol[0]);
+	pixelP[1] = (int)( 255.0 * pCol[1]);
+	pixelP[2] = (int)( 255.0 * pCol[2]);
+
 	return col;
 }
 
@@ -293,7 +313,7 @@ std::pair<Vec3d,Vec3d> RayTracer::traceRay(ray& r, int depth)
 }
 
 RayTracer::RayTracer()
-	: scene(0), buffer(0), buffer_width(256), buffer_height(256), m_bBufferReady(false), environment(nullptr)
+	: scene(0), buffer(0), buffer_width(256), buffer_height(256), m_bBufferReady(false), environment(nullptr), bufferP(0)
 {}
 
 RayTracer::~RayTracer()
@@ -301,11 +321,13 @@ RayTracer::~RayTracer()
 	delete scene;
 	delete environment;
 	delete [] buffer;
+	delete [] bufferP;
 }
 
-void RayTracer::getBuffer( unsigned char *&buf, int &w, int &h )
+void RayTracer::getBuffer( unsigned char *&buf, unsigned char *&bufP, int &w, int &h )
 {
 	buf = buffer;
+	bufP = bufferP;
 	w = buffer_width;
 	h = buffer_height;
 }
@@ -370,9 +392,13 @@ void RayTracer::traceSetup(int w, int h)
 		buffer_height = h;
 		bufferSize = buffer_width * buffer_height * 3;
 		delete[] buffer;
+		delete[] bufferP;
+
 		buffer = new unsigned char[bufferSize];
+		bufferP = new unsigned char[bufferSize];
 	}
 	memset(buffer, 0, w*h*3);
+	memset(bufferP, 0, w*h*3);
 	m_bBufferReady = true;
 }
 

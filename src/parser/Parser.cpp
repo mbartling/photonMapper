@@ -930,7 +930,7 @@ void Parser::parseObj(string inputfile, Scene* scene, const Material& parent, Tr
       Vec3d ks(mtr.specular[0], mtr.specular[1], mtr.specular[2]     );
       Vec3d kd(mtr.diffuse[0], mtr.diffuse[1], mtr.diffuse[2]      );
       // Vec3d kt(mtr.transmittance[0], mtr.transmittance[1], mtr.transmittance[2]);
-      Vec3d kt(mtr.dissolve, mtr.dissolve, mtr.dissolve);
+      Vec3d kt(1.0 - mtr.dissolve, 1.0 - mtr.dissolve,1.0 -  mtr.dissolve);
       std::cout << mtr.transmittance[0]<< " " << mtr.transmittance[1] << " " <<  mtr.transmittance[2] << std::endl;
       std::cout << mtr.dissolve << std::endl;
       Vec3d kr = ks;

@@ -39,7 +39,7 @@ point_light {
 }
 
  translate(-1,0,0,
- 	scale(0.8,
+ 	scale(0.2,
 		sphere { 
 			material = { 
 				diffuse = (0.4,0.4,0);

@@ -9,6 +9,7 @@
 #include "ui/pixelblock.h"
 #include "scene/cubeMap.h"
 #include "scene/photon.h"
+#include <tuple>
 class Scene;
 
 class RayTracer
@@ -20,7 +21,7 @@ public:
 	Vec3d tracePixel(int i, int j);
   Vec3d tracePixelBlock(const pixelBlock pxB);
 	Vec3d trace(double x, double y);
-	Vec3d traceRay(ray& r, int depth);
+	std::pair<Vec3d,Vec3d> traceRay(ray& r, int depth);
   void tracePhoton(photon& r, int depth);
   void firePhotons(int numPhotons, Vec3d mFlux);
 	void getBuffer(unsigned char *&buf, int &w, int &h);

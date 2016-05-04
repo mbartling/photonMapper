@@ -40,7 +40,9 @@ Vec3d RayTracer::trace(double x, double y)
   if (TraceUI::m_debug) scene->intersectCache.clear();
   ray r(Vec3d(0,0,0), Vec3d(0,0,0), ray::VISIBILITY);
   scene->getCamera().rayThrough(x,y,r);
-  Vec3d ret = traceRay(r, traceUI->getDepth());
+  std::pair<Vec3d, Vec3d> mPair = traceRay(r, traceUI->getDepth()); 
+  Vec3d ret = mPair.first;
+  // Vec3d ret = traceRay(r, traceUI->getDepth());
   ret.clamp();
   return ret;
 }
@@ -144,10 +146,13 @@ inline double clamp(double minval, double maxval, double mVal){
 // }
 // Do recursive ray tracing!  You'll want to insert a lot of code here
 // (or places called from here) to handle reflection, refraction, etc etc.
-Vec3d RayTracer::traceRay(ray& r, int depth)
+// Returns (ColorC, PhotonMask) Pair
+std::pair<Vec3d,Vec3d> RayTracer::traceRay(ray& r, int depth)
 {
 	isect i;
 	Vec3d colorC;
+	Vec3d photonC;
+
 	// std::default_random_engine generator;
   // std::normal_distribution<double> distribution(0.0,0.01);
 	if(scene->intersect(r, i)) {
@@ -164,7 +169,7 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 		// rays.
 	  const Material& m = i.getMaterial();	  
 	  colorC = m.shade(scene, r, i);
-	  if(depth <= 0) return colorC; //Vec3d(0.0, 0.0, 0.0); //Finish recursion
+	  if(depth <= 0) return std::make_pair(colorC, photonC); //Vec3d(0.0, 0.0, 0.0); //Finish recursion
 	  if(m.Refl()){
 	  	// std::cout<< "HERE"<< std::endl;
 
@@ -187,7 +192,10 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 				// std::cout << Rdir << std::endl;
 			} 
 			ray R(q, Rdir, ray::REFLECTION);
-	  	colorC += m.kr(i)%traceRay(R, depth - 1);
+			std::pair<Vec3d, Vec3d> mPair = traceRay(R, depth - 1);
+			colorC += m.kr(i) % mPair.first;
+			photonC += mPair.second;
+	  	// colorC += m.kr(i)%traceRay(R, depth - 1);
 	  }
 
 	  // Now handle the Transmission (Refraction)
@@ -255,7 +263,9 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 				} 
   
 				ray T(q, Tdir, ray::REFRACTION);
-			  colorC += m.kt(i)%traceRay(T, depth - 1);
+				std::pair<Vec3d, Vec3d> mPair = traceRay(T, depth - 1);
+			  colorC += m.kt(i)% mPair.first;
+			  photonC += mPair.second;
 
 	  	}
 
@@ -264,7 +274,8 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 
 	  if(scene->mSpatialHash.count(q)) {
 	  	// std::cout << "FLUX: " << scene->mSpatialHash[q].flux << std::endl;
-	  	colorC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
+	  	// colorC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
+	  	photonC = colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 	  	// colorC = scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 		}
 	} else {
@@ -278,7 +289,7 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 		}else
 			colorC = Vec3d(0.0, 0.0, 0.0);
 	}
-	return colorC;
+	return std::make_pair(colorC, photonC);
 }
 
 RayTracer::RayTracer()
@@ -406,7 +417,7 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  	// std::cout<< "HERE"<< std::endl;
 	  	
 	  	// Russian Roulette
-	  	if((double)rand()/(double)RAND_MAX > m.kr(i)[0]){
+	  	if((double)rand()/(double)RAND_MAX < m.kr(i)[0]){
 	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 			  else scene->mSpatialHash[q] = r;
 
@@ -423,7 +434,7 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  // Now handle the Transmission (Refraction)
 	  if(m.Trans()){
 	  	// Russian Roulette
-	  	if((double)rand()/(double)RAND_MAX > m.kt(i)[0]){
+	  	if((double)rand()/(double)RAND_MAX < m.kt(i)[0]){
 	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 			  else scene->mSpatialHash[q] = r;
 

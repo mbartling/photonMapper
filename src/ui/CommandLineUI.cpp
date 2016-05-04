@@ -203,11 +203,11 @@ int CommandLineUI::run()
 
 		applyGaussian(bufP, width, height, bufOut);
 		mergeImages(bufOut, bufOut, buf, width, height);
-		
+
 		if (buf)
 			writeBMP(imgName, width, height, buf);
 		if (bufP)
-			writeBMP(strcat(imgName , "PM"), width, height, bufP);
+			writeBMP(strcat(imgName , "PM.bmp"), width, height, bufP);
 		if (bufOut)
 			writeBMP(strcat(imgName , "FINAL.bmp"), width, height, bufOut);
 

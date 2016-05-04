@@ -96,7 +96,7 @@ std::tuple<Vec3d,Vec3d> PointLight::firePhoton(void) const {
   sample.normalize();
 
   // return std::make_tuple(position, getDirection(sample));
-  return std::make_tuple(Vec3d(0.0,0.0,0.0), getDirection(sample));
+  return std::make_tuple(Vec3d(0.0,0.0,0.0), -getDirection(sample));
 }
 Vec3d PointLight::shadowAttenuation(const ray& r, const Vec3d& p) const
 {

@@ -83,7 +83,7 @@ CommandLineUI::CommandLineUI( int argc, char* const* argv )
 				exit(1);
 				break;
 			case 'f':
-				m_flux = Vec3d((double)atoi(optarg),(double)atoi(optarg),(double)atoi(optarg));
+				m_flux = Vec3d((double)atof(optarg),(double)atof(optarg),(double)atof(optarg));
 				break;
 			case 'p':
 				m_numPhotons = atoi(optarg);

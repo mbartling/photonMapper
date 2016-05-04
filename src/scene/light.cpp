@@ -5,6 +5,7 @@
 extern TraceUI* traceUI;
 
 using namespace std;
+#define PI 3.14159265359
 
 double DirectionalLight::distanceAttenuation(const Vec3d& P) const
 {
@@ -82,10 +83,15 @@ Vec3d PointLight::getDirection(const Vec3d& P) const
 
 // Random Sample the sphere
 std::tuple<Vec3d,Vec3d> PointLight::firePhoton(void) const {
-  double x = (double)rand()/(double)RAND_MAX;
-  double y = (double)rand()/(double)RAND_MAX;
-  double z = (double)rand()/(double)RAND_MAX;
+  //double x = ((double)rand() - RAND_MAX/2)/(double)RAND_MAX;
+  //double y = ((double)rand() - RAND_MAX/2)/(double)RAND_MAX;
+  //double z = ((double)rand() - RAND_MAX/2)/(double)RAND_MAX;
 
+  double theta = ((double)rand() / (double) RAND_MAX)*2.0*PI;
+  double phi = ((double)rand() / (double) RAND_MAX)*PI;
+  double x = cos(theta)*sin(phi);
+  double y = sin(theta)*sin(phi);
+  double z = cos(phi);
   Vec3d sample(x, y, z);
   sample.normalize();
 

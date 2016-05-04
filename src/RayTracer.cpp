@@ -65,6 +65,7 @@ void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
   	}
 
   }
+  std::cout << "Number of Photon bins: " << scene->mSpatialHash.size() << std::endl;
   return;
 }
 
@@ -259,9 +260,12 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 	  	}
 
 	  }
+	  // colorC = Vec3d(0.0, 0.0, 0.0); //See just the spatial hash map
+
 	  if(scene->mSpatialHash.count(q)) {
 	  	// std::cout << "FLUX: " << scene->mSpatialHash[q].flux << std::endl;
 	  	colorC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
+	  	// colorC = scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 		}
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
@@ -269,6 +273,8 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 		// is just black.
 		if(haveCubeMap()){
 			colorC = environment->intersect(r);
+			// colorC = Vec3d(0.0, 0.0, 0.0);
+
 		}else
 			colorC = Vec3d(0.0, 0.0, 0.0);
 	}
@@ -386,8 +392,10 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  
 	  fluxDecreased = r.flux; // Need to update this
 	  // std::cout << "HERE" << std::endl;
-	  if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
-	  else scene->mSpatialHash[q] = r;
+	  if(!m.Trans() && !m.Refl()){
+		  if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
+		  else scene->mSpatialHash[q] = r;
+	  }
 
 	  // if(!m.Refl() && !m.Trans()){
 	  // 	return;
@@ -396,6 +404,14 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  if(depth <= 0) return ; //Vec3d(0.0, 0.0, 0.0); //Finish recursion
 	  if(m.Refl()){
 	  	// std::cout<< "HERE"<< std::endl;
+	  	
+	  	// Russian Roulette
+	  	if((double)rand()/(double)RAND_MAX > m.kr(i)[0]){
+	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
+			  else scene->mSpatialHash[q] = r;
+
+	  		return;
+	  	}
 
 			Vec3d Rdir = -2.0*(r.getDirection()*i.N)*i.N + r.getDirection();
 			Rdir.normalize();
@@ -406,6 +422,14 @@ void RayTracer::tracePhoton(photon& r, int depth)
 
 	  // Now handle the Transmission (Refraction)
 	  if(m.Trans()){
+	  	// Russian Roulette
+	  	if((double)rand()/(double)RAND_MAX > m.kt(i)[0]){
+	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
+			  else scene->mSpatialHash[q] = r;
+
+	  		return;
+
+	  	}
 
 
 	  	Vec3d n = i.N;

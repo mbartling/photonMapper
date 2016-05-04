@@ -12,7 +12,7 @@ const double r = 1.0; //
 
 template <typename T>
 class mHash{
-  const double radius = 1.0;
+  const double radius = 0.005;
 
   public:
     // mHash(): radius(r){}
@@ -39,6 +39,7 @@ class myMap{
       return _map[_hash(point)];
     }
     int count(const Vec3d& point ){return _map.count(_hash(point));}
+    int size( void ){return _map.size();}
 
 };
 

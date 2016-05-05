@@ -118,6 +118,7 @@ void parallelThing(RayTracer* raytracer, std::vector<pixelBlock> pxBList){
 
 int CommandLineUI::run()
 {
+	srand (time(NULL));
 	assert( raytracer != 0 );
 	// setSmoothShade(true);
 	// printf("%s\n", leftF);

@@ -88,15 +88,16 @@ std::tuple<Vec3d,Vec3d> PointLight::firePhoton(void) const {
   //double z = ((double)rand() - RAND_MAX/2)/(double)RAND_MAX;
 
   double theta = ((double)rand() / (double) RAND_MAX)*2.0*PI;
-  double phi = ((double)rand() / (double) RAND_MAX)*PI;
+  // double phi = ((double)rand() / (double) RAND_MAX)*PI;
+  double phi = acos(2.0*((double)rand() / (double) RAND_MAX)-1.0);
   double x = cos(theta)*sin(phi);
   double y = sin(theta)*sin(phi);
   double z = cos(phi);
   Vec3d sample(x, y, z);
   sample.normalize();
 
-  // return std::make_tuple(position, getDirection(sample));
-  return std::make_tuple(Vec3d(0.0,0.0,0.0), -getDirection(sample));
+  return std::make_tuple(position, -getDirection(sample));
+  // return std::make_tuple(Vec3d(0.0,0.0,0.0), -getDirection(sample));
 }
 Vec3d PointLight::shadowAttenuation(const ray& r, const Vec3d& p) const
 {

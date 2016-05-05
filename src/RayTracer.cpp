@@ -295,7 +295,7 @@ std::pair<Vec3d,Vec3d> RayTracer::traceRay(ray& r, int depth)
 	  if(scene->mSpatialHash.count(q)) {
 	  	// std::cout << "FLUX: " << scene->mSpatialHash[q].flux << std::endl;
 	  	// colorC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
-	  	photonC = colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
+	  	photonC =  0.5*(colorC % scene->mSpatialHash[q].flux + scene->mSpatialHash[q].flux); // Flux will be an additive multiple of the color
 	  	// colorC = scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 		}
 	} else {
@@ -443,7 +443,7 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  	// std::cout<< "HERE"<< std::endl;
 	  	
 	  	// Russian Roulette
-	  	if((double)rand()/(double)RAND_MAX < m.kr(i)[0]){
+	  	if((double)rand()/(double)RAND_MAX > m.kr(i)[0]){
 	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 			  else scene->mSpatialHash[q] = r;
 
@@ -460,7 +460,7 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  // Now handle the Transmission (Refraction)
 	  if(m.Trans()){
 	  	// Russian Roulette
-	  	if((double)rand()/(double)RAND_MAX < m.kt(i)[0]){
+	  	if((double)rand()/(double)RAND_MAX > m.kt(i)[0]){
 	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 			  else scene->mSpatialHash[q] = r;
 

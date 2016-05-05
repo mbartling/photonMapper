@@ -12,8 +12,8 @@ const double r = 1.0; //
 
 template <typename T>
 class mHash{
-  const double radius = 0.001;
-  // const double radius = 0.01;
+  // const double radius = 0.001;
+  const double radius = 0.0025;
 
   public:
     // mHash(): radius(r){}

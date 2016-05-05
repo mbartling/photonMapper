@@ -1,26 +1,26 @@
 SBT-raytracer 1.0
 
 camera {
-  position = (4,0,0);
-  viewdir = (-1,0,0);
-  aspectratio = 1;
+  position = (4,2,1.25);
+  viewdir = (-1,-0.5,-0.25);
+  aspectratio = 1.777;
   updir = (0,1,0);
 }
 
 point_light {
-  position = (104, 104, 104);
+  position = (1.0, 1.75, 1.1);
   color = (.5, .5, .5);
-  constant_attenuation_coeff= 0.55;
+  constant_attenuation_coeff= 0.25;
   linear_attenuation_coeff = 0.003372407;
   quadratic_attenuation_coeff = 0.000045492;  
 }
 
 
-rotate(0,1,0,1.57,
-  scale(0.4,
-    translate(0,-0.75,2,
+//rotate(0,1,0,1.57,
+  scale(0.5,
+//    translate(0,-0.75,2,
       polymesh {
-        objfile = "WineGlasses5.obj"; 
+        objfile = "WineGlasses7.obj"; 
         material = { 
           ambient = (0.0,0.0,0.0); 
           diffuse = (0.1,0.1,1.0);
@@ -29,4 +29,4 @@ rotate(0,1,0,1.57,
           index = 1.5;
 
         }
-      } )))
+      } )//)//)

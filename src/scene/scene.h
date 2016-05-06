@@ -244,6 +244,11 @@ public:
     objects.push_back(obj);
     // std::cout << "Done Adding Object!" << std::endl;
   }
+  void addBB( Geometry* obj ) {
+    obj->ComputeBoundingBox();
+    objectsBB.push_back(obj);
+    // std::cout << "Done Adding Object!" << std::endl;
+  }
   void add(Light* light) { lights.push_back(light); }
 
   bool intersect(ray& r, isect& i) const;
@@ -276,6 +281,7 @@ public:
 
  private:
   std::vector<Geometry*> objects;
+  std::vector<Geometry*> objectsBB;
   std::vector<Geometry*> nonboundedobjects;
   std::vector<Geometry*> boundedobjects;
   std::vector<Light*> lights;

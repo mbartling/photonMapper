@@ -52,6 +52,7 @@ Scene::~Scene() {
     tmap::iterator t;
     // kdtree.delete_tree();
     for( g = objects.begin(); g != objects.end(); ++g ) delete (*g);
+    for( g = objectsBB.begin(); g != objectsBB.end(); ++g ) delete (*g);
     for( l = lights.begin(); l != lights.end(); ++l ) delete (*l);
     for( t = textureCache.begin(); t != textureCache.end(); t++ ) delete (*t).second;
 }

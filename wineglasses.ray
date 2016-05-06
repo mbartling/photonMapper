@@ -8,7 +8,7 @@ camera {
 }
 
 point_light {
-  position = (1.0, 1.75, 1.1);
+  position = (1.0, 1.75, 2.1);
   color = (.5, .5, .5);
   constant_attenuation_coeff= 0.25;
   linear_attenuation_coeff = 0.003372407;

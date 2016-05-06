@@ -416,7 +416,7 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	if(scene->intersect(r, i)) {
 		// YOUR CODE HERE
 		Vec3d q = r.at(i.t);
-
+		double mRand = (double)rand()/(double)RAND_MAX;
 		// An intersection occurred!  We've got work to do.  For now,
 		// this code gets the material for the surface that was intersected,
 		// and asks that material to provide a color for the ray.  
@@ -427,7 +427,7 @@ void RayTracer::tracePhoton(photon& r, int depth)
 		// rays.
 	  const Material& m = i.getMaterial();
 	  
-	  fluxDecreased = r.flux; // Need to update this
+	  fluxDecreased = r.flux;// * abs(i.N * r.getDirection()); // Need to update this
 	  // std::cout << "HERE" << std::endl;
 	  if(!m.Trans() && !m.Refl()){
 		  if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
@@ -443,7 +443,7 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  	// std::cout<< "HERE"<< std::endl;
 	  	
 	  	// Russian Roulette
-	  	if((double)rand()/(double)RAND_MAX > m.kr(i)[0]){
+	  	if(mRand > m.kr(i)[0]){
 	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 			  else scene->mSpatialHash[q] = r;
 
@@ -460,7 +460,7 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  // Now handle the Transmission (Refraction)
 	  if(m.Trans()){
 	  	// Russian Roulette
-	  	if((double)rand()/(double)RAND_MAX > m.kt(i)[0]){
+	  	if(mRand > m.kt(i)[0]){
 	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 			  else scene->mSpatialHash[q] = r;
 

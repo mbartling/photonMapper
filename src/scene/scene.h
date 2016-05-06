@@ -129,6 +129,7 @@ public:
   Vec3d getNormal() { return Vec3d(1.0, 0.0, 0.0); }
   virtual ~Geometry(){}
 
+  virtual bool hasMaterial(void) const {return false;}
   virtual void ComputeBoundingBox() {
     // take the object's local bounding box, transform all 8 points on it,
     // and use those to find a new bounding box.
@@ -215,6 +216,7 @@ public:
 
   virtual const Material& getMaterial() const { return *material; }
   virtual void setMaterial(Material* m)	{ delete material; material = m; }
+  virtual bool hasMaterial(void) const {return true;}
 
 protected:
  MaterialSceneObject(Scene *scene, Material *mat) 

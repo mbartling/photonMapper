@@ -51,6 +51,16 @@ std::pair<Vec3d,Vec3d> RayTracer::trace(double x, double y)
 
 void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
 {
+	/*
+	for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
+       litr != scene->endLights(); ++litr )
+  {
+  	for each translucent and reflective object 
+  		fire many photons at it
+  			  std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(bBox);
+
+  }
+  */
   // Clear out the ray cache in the scene for debugging purposes,
   for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
        litr != scene->endLights(); ++litr )

@@ -258,6 +258,9 @@ public:
 
   std::vector<Geometry*>::const_iterator beginObjects() const { return objects.begin(); }
   std::vector<Geometry*>::const_iterator endObjects() const { return objects.end(); }
+
+  std::vector<Geometry*>::const_iterator beginObjectsBB() const { return objectsBB.begin(); }
+  std::vector<Geometry*>::const_iterator endObjectsBB() const { return objectsBB.end(); }
         
   const Camera& getCamera() const { return camera; }
   Camera& getCamera() { return camera; }

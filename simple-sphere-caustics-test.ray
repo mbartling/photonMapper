@@ -1,11 +1,12 @@
 SBT-raytracer 1.0
 
+
 camera
 {
-	position = (15, 0, 5);
-	viewdir = (-1, 0, -.3);
+	position = (15, 6, 6);
+	viewdir = (-1, -0.5, -.3);
 	updir = (0, 0, 1);
-}
+} 
 
 point_light {
   position=( 6, -3, 4.5 );
@@ -14,6 +15,13 @@ point_light {
   linear_attenuation_coeff = 0.003372407;
   quadratic_attenuation_coeff = 0.00045492;
 }
+
+directional_light
+{
+	direction = (-2.0, 0.0, -0.5);
+	color = (.7, .7, .7);
+}
+
 
 // The box forms a plane, which should reflect the cylinder
 translate( 0, 0, -2,
@@ -26,7 +34,7 @@ translate( 0, 0, -2,
 			}
 		} ) )
 
-translate( -5, 0, 0,
+translate( -4.5, 0, 0,
 	scale( 1, 15, 15, 
 		box {
 			material = { 
@@ -38,15 +46,14 @@ translate( -5, 0, 0,
 
 
 translate( 0, 0, 2,
-	scale( 1,2,2 ,
 	sphere {
 		material = { 
-			diffuse = (0.25, 0.25, 0.25);
+			diffuse = (0.0, 0.0, 0.0);
 			specular = (0.7, 0.7, 0.7);
 			shininess = 256;
-			reflective = (0.1, 0.1, 0.1);
-			transmissive = (0.75, 0.75, 0.75);
-			index = 1.0;
+			//reflective = (0.8, 0.8, 0.8);
+			transmissive = (1.0, 1.0, 1.0);
+			index = 1.25;
 		}
 	}
-) )
+) 

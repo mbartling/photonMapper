@@ -322,10 +322,10 @@ std::pair<Vec3d,Vec3d> RayTracer::traceRay(ray& r, int depth)
 
 	  if(scene->mSpatialHash.count(q)) {
 	  	// std::cout << "FLUX: " << scene->mSpatialHash[q].flux << std::endl;
-	  	// colorC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
+	  	//photonC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 	  	
 	  	photonC =  0.5*(colorC % scene->mSpatialHash[q].flux + scene->mSpatialHash[q].flux); // Flux will be an additive multiple of the color
-	  	//photonC = scene->mSpatialHash[q].flux;
+	  	// photonC = scene->mSpatialHash[q].flux;
 
 	  	//colorC = scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 		}

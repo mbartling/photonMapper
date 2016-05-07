@@ -31,8 +31,11 @@ int main(int argc, char** argv)
   for(int i = 0; i < shapes.size(); i++){
     //Will only support one material per object
     // Get Materials
-    mFile << "polymesh {\n name=\"\";\n";
-    mFile << " material={\n  diffuse=( 0.0,0.0,0.0);\n  ambient=( 0.0,0.0,0.0);\n  specular=( 0.9,0.9,0.9);\n  reflective=( 0.2, 0.2, 0.2);\n  emissive=( 0,0,0);\n  shininess=125.0;\n  transmissive=( 0.7,0.7,0.7 );\n  index = 1.5;\n};\n";
+    mFile << "polymesh {\n name=\"" << shapes[i].name <<"\";\n";
+    if(shapes[i].name.find("glass") != std::string::npos)
+      mFile << " material={\n  diffuse=( 0.01,0.01,0.01);\n  ambient=( 0.5,0.5,0.5);\n  specular=( 0.9,0.9,0.9);\n  reflective=( 0.2, 0.2, 0.2);\n  emissive=( 0,0,0);\n  shininess=125.0;\n  transmissive=( 0.7,0.7,0.7 );\n  index = 1.5;\n};\n";
+    else
+      mFile << " material={\n  diffuse=( 0.345880, 0.309265, 0.240385);\n  ambient=( 0,0,0);\n  specular=( 0.167958, 0.192770, 0.273011);\n  reflective=( 0, 0, 0);\n  emissive=( 0,0,0);\n  shininess=35.294118;\n  transmissive=( 0,0,0 );\n};\n";
 
     mFile << " points=(\n";
     for (size_t v = 0; v < shapes[i].mesh.positions.size() / 3; v++) {

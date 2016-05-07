@@ -19,7 +19,7 @@ public:
 	virtual Vec3d getColor() const = 0;
 	virtual Vec3d getDirection (const Vec3d& P) const = 0;
 
-	virtual std::tuple<Vec3d,Vec3d> firePhoton() const = 0;
+	virtual std::tuple<Vec3d,Vec3d> firePhoton(BoundingBox* bBox = nullptr) const = 0;
 	virtual bool hasPhotonsAbility(void) const = 0;
 protected:
 	Light(Scene *scene, const Vec3d& col) : SceneElement(scene), color(col), hasPhotons(false) {}
@@ -42,8 +42,9 @@ public:
 	virtual double distanceAttenuation(const Vec3d& P) const;
 	virtual Vec3d getColor() const;
 	virtual Vec3d getDirection(const Vec3d& P) const;
-  virtual std::tuple<Vec3d,Vec3d>  firePhoton() const;
-	virtual bool hasPhotonsAbility(void) const { std::cout << "Directional Light" << std::endl; return false;}
+
+  virtual std::tuple<Vec3d,Vec3d>  firePhoton(BoundingBox* bBox) const;
+	virtual bool hasPhotonsAbility(void) const { std::cout << "Directional Light" << std::endl; return true;}
 
 protected:
 	Vec3d 		orientation;
@@ -78,7 +79,7 @@ public:
 		quadraticTerm = c;
 	}
 
-	virtual std::tuple<Vec3d,Vec3d>  firePhoton() const;
+	virtual std::tuple<Vec3d,Vec3d>  firePhoton(BoundingBox* bBox) const;
 
 protected:
 	Vec3d position;

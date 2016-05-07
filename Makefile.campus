@@ -43,6 +43,8 @@ ALL.O = src/main.o src/getopt.o src/RayTracer.o \
 ray: $(ALL.O)
 	$(CC) $(CFLAGS) -o $@ $(ALL.O) $(LIBS)
 
+objthing:
+	g++ --std=c++11 -o obj2GlassRay obj2GlassRay.cpp
 
 clean:
 	rm -f $(ALL.O)

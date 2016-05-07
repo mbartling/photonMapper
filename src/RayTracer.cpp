@@ -52,6 +52,8 @@ std::pair<Vec3d,Vec3d> RayTracer::trace(double x, double y)
 void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
 {
 
+	isect cur;
+
   for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
   		litr != scene->endLights(); ++litr )
   {
@@ -61,12 +63,17 @@ void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
     	continue;
 
 	  for (vector<Geometry*>::const_iterator giter = scene->beginObjects(); giter != scene->endObjects(); giter++)
+	  // for (vector<Geometry*>::const_iterator giter = scene->beginObjectsBB(); giter != scene->endObjectsBB(); giter++)
 	  {
-	  	for(int i = 0; i < 10000000; i++ ){
+	  	for(int i = 0; i < numPhotons; i++ ){
 	  		BoundingBox* pBox = new BoundingBox((*giter)->getBoundingBox().getMin(), (*giter)->getBoundingBox().getMax());
 		  	std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(pBox);
+
 		  	photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
-		  	tracePhoton(r, traceUI->getDepth());
+		  	if((*giter)->intersect(r, cur)){
+			  	tracePhoton(r, traceUI->getDepth());
+		  	}
+
 	  	}
 	  }
   }

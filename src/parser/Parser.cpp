@@ -706,6 +706,7 @@ void Parser::parseTrimesh(Scene* scene, TransformNode* transform, const Material
         } else{
           // delete tmesh;
         }
+
         // tmesh->buildKdTree();
         scene->addBB( tmesh );
         return;
@@ -957,6 +958,7 @@ void Parser::parseObj(string inputfile, Scene* scene, const Material& parent, Tr
       tmesh->addFace(shapes[i].mesh.indices[3*f+0], shapes[i].mesh.indices[3*f+1], shapes[i].mesh.indices[3*f+2]);
     }
     tmesh->generateNormals();
+    // tmesh->buildKdTree();
     scene->addBB( tmesh );
 
 

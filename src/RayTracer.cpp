@@ -63,7 +63,8 @@ void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
 	  for (vector<Geometry*>::const_iterator giter = scene->beginObjects(); giter != scene->endObjects(); giter++)
 	  {
 	  	for(int i = 0; i < 10000000; i++ ){
-		  	std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton( (*giter)->getBoundingBox() );
+	  		BoundingBox* pBox = new BoundingBox((*giter)->getBoundingBox().getMin(), (*giter)->getBoundingBox().getMax());
+		  	std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(pBox);
 		  	photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
 		  	tracePhoton(r, traceUI->getDepth());
 	  	}
@@ -71,24 +72,24 @@ void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
   }
 
   //Clear out the ray cache in the scene for debugging purposes,
-  for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
-       litr != scene->endLights(); ++litr )
-  {
+  // for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
+  //      litr != scene->endLights(); ++litr )
+  // {
 
-    Light* pLight  = *litr;
+  //   Light* pLight  = *litr;
 
-    if(!pLight->hasPhotonsAbility()) 
-    	continue;
-  	std::cout << "Firing Photons" << std::endl;
-  	for(int i = 0; i < numPhotons; i++ ){
-		std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton();
-		//std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(scene->bounds());
-		photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
-		// std::cout << std::get<0>(thing) << " " << std::get<1>(thing) << std::endl;
-		tracePhoton(r, traceUI->getDepth());
-  	}
+  //   if(!pLight->hasPhotonsAbility()) 
+  //   	continue;
+  // 	std::cout << "Firing Photons" << std::endl;
+  // 	for(int i = 0; i < numPhotons; i++ ){
+		// std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton();
+		// //std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(scene->bounds());
+		// photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
+		// // std::cout << std::get<0>(thing) << " " << std::get<1>(thing) << std::endl;
+		// tracePhoton(r, traceUI->getDepth());
+  // 	}
 
-  }
+  // }
   std::cout << "Number of Photon bins: " << scene->mSpatialHash.size() << std::endl;
   return;
 }

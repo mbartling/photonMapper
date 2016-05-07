@@ -51,17 +51,26 @@ std::pair<Vec3d,Vec3d> RayTracer::trace(double x, double y)
 
 void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
 {
-	/*
-	for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
-       litr != scene->endLights(); ++litr )
-  {
-  	for each translucent and reflective object 
-  		fire many photons at it
-  			  std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(bBox);
 
+  for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
+  		litr != scene->endLights(); ++litr )
+  {
+  	  Light* pLight  = *litr;
+
+  	  if(!pLight->hasPhotonsAbility()) 
+    	continue;
+
+	  for (vector<Geometry*>::const_iterator giter = scene->beginObjects(); giter != scene->endObjects(); giter++)
+	  {
+	  	for(int i = 0; i < 10000000; i++ ){
+		  	std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton( (*giter)->getBoundingBox() );
+		  	photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
+		  	tracePhoton(r, traceUI->getDepth());
+	  	}
+	  }
   }
-  */
-  // Clear out the ray cache in the scene for debugging purposes,
+
+  //Clear out the ray cache in the scene for debugging purposes,
   for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
        litr != scene->endLights(); ++litr )
   {
@@ -72,10 +81,11 @@ void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
     	continue;
   	std::cout << "Firing Photons" << std::endl;
   	for(int i = 0; i < numPhotons; i++ ){
-		  std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton();
-			photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
-			// std::cout << std::get<0>(thing) << " " << std::get<1>(thing) << std::endl;
-			tracePhoton(r, traceUI->getDepth());
+		std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton();
+		//std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(scene->bounds());
+		photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
+		// std::cout << std::get<0>(thing) << " " << std::get<1>(thing) << std::endl;
+		tracePhoton(r, traceUI->getDepth());
   	}
 
   }
@@ -305,8 +315,11 @@ std::pair<Vec3d,Vec3d> RayTracer::traceRay(ray& r, int depth)
 	  if(scene->mSpatialHash.count(q)) {
 	  	// std::cout << "FLUX: " << scene->mSpatialHash[q].flux << std::endl;
 	  	// colorC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
-	  	photonC =  0.5*(colorC % scene->mSpatialHash[q].flux + scene->mSpatialHash[q].flux); // Flux will be an additive multiple of the color
-	  	// colorC = scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
+	  	
+	  	//photonC =  0.5*(colorC % scene->mSpatialHash[q].flux + scene->mSpatialHash[q].flux); // Flux will be an additive multiple of the color
+	  	photonC = scene->mSpatialHash[q].flux;
+
+	  	//colorC = scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 		}
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
@@ -468,8 +481,11 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  }
 
 	  // Now handle the Transmission (Refraction)
+	  mRand = (double)rand()/(double)RAND_MAX;
 	  if(m.Trans()){
-	  	// Russian Roulette
+	  	//cout << "yes" << endl;
+	  	//cout << "m.kt(i)[0] = " << m.kt(i)[0] << endl;
+	    // Russian Roulette
 	  	if(mRand > m.kt(i)[0]){
 	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 			  else scene->mSpatialHash[q] = r;
@@ -477,7 +493,6 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  		return;
 
 	  	}
-
 
 	  	Vec3d n = i.N;
 	  	Vec3d rd = r.getDirection();
@@ -499,7 +514,7 @@ void RayTracer::tracePhoton(photon& r, int depth)
 		  	tcos = n*sqrt(TIR);
 		  	Vec3d Tdir = tcos + tsin;
 		  	Tdir.normalize();  
-				photon T(q, Tdir, fluxDecreased, ray::REFRACTION);
+			  photon T(q, Tdir, fluxDecreased, ray::REFRACTION);
 			  tracePhoton(T, depth - 1);
 			  // colorC += m.kt(i)%tracePhoton(T, depth - 1);
 	  	}

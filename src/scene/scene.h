@@ -129,6 +129,7 @@ public:
   Vec3d getNormal() { return Vec3d(1.0, 0.0, 0.0); }
   virtual ~Geometry(){}
 
+  virtual bool hasMaterial(void) const {return false;}
   virtual void ComputeBoundingBox() {
     // take the object's local bounding box, transform all 8 points on it,
     // and use those to find a new bounding box.
@@ -215,6 +216,7 @@ public:
 
   virtual const Material& getMaterial() const { return *material; }
   virtual void setMaterial(Material* m)	{ delete material; material = m; }
+  virtual bool hasMaterial(void) const {return true;}
 
 protected:
  MaterialSceneObject(Scene *scene, Material *mat) 
@@ -242,6 +244,11 @@ public:
     objects.push_back(obj);
     // std::cout << "Done Adding Object!" << std::endl;
   }
+  void addBB( Geometry* obj ) {
+    obj->ComputeBoundingBox();
+    objectsBB.push_back(obj);
+    // std::cout << "Done Adding Object!" << std::endl;
+  }
   void add(Light* light) { lights.push_back(light); }
 
   bool intersect(ray& r, isect& i) const;
@@ -251,6 +258,9 @@ public:
 
   std::vector<Geometry*>::const_iterator beginObjects() const { return objects.begin(); }
   std::vector<Geometry*>::const_iterator endObjects() const { return objects.end(); }
+
+  std::vector<Geometry*>::const_iterator beginObjectsBB() const { return objectsBB.begin(); }
+  std::vector<Geometry*>::const_iterator endObjectsBB() const { return objectsBB.end(); }
         
   const Camera& getCamera() const { return camera; }
   Camera& getCamera() { return camera; }
@@ -274,6 +284,7 @@ public:
 
  private:
   std::vector<Geometry*> objects;
+  std::vector<Geometry*> objectsBB;
   std::vector<Geometry*> nonboundedobjects;
   std::vector<Geometry*> boundedobjects;
   std::vector<Light*> lights;

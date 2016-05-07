@@ -60,9 +60,9 @@ void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
   	  if(!pLight->hasPhotonsAbility()) 
     	continue;
 
-	  for (vector<Geometry*>::const_iterator giter = scene->beginObjects(); giter != scene->endObjects(); giter++)
+	  for (vector<Geometry*>::const_iterator giter = scene->beginObjectsBB(); giter != scene->endObjectsBB(); giter++)
 	  {
-	  	for(int i = 0; i < 10000000; i++ ){
+	  	for(int i = 0; i < numPhotons; i++ ){
 	  		BoundingBox* pBox = new BoundingBox((*giter)->getBoundingBox().getMin(), (*giter)->getBoundingBox().getMax());
 		  	std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(pBox);
 		  	photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
@@ -317,8 +317,8 @@ std::pair<Vec3d,Vec3d> RayTracer::traceRay(ray& r, int depth)
 	  	// std::cout << "FLUX: " << scene->mSpatialHash[q].flux << std::endl;
 	  	// colorC += colorC % scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 	  	
-	  	//photonC =  0.5*(colorC % scene->mSpatialHash[q].flux + scene->mSpatialHash[q].flux); // Flux will be an additive multiple of the color
-	  	photonC = scene->mSpatialHash[q].flux;
+	  	photonC =  0.5*(colorC % scene->mSpatialHash[q].flux + scene->mSpatialHash[q].flux); // Flux will be an additive multiple of the color
+	  	//photonC = scene->mSpatialHash[q].flux;
 
 	  	//colorC = scene->mSpatialHash[q].flux; // Flux will be an additive multiple of the color
 		}

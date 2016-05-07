@@ -45,13 +45,6 @@ Vec3d DirectionalLight::getDirection(const Vec3d& P) const
 
 // Random Sample the plane that contains the image of the scene bounds
 std::tuple<Vec3d,Vec3d> DirectionalLight::firePhoton(BoundingBox* bBox = nullptr) const {
-  // double x = (double)rand()/(double)RAND_MAX;
-  // double y = (double)rand()/(double)RAND_MAX;
-  // double z = (double)rand()/(double)RAND_MAX;
-  // Vec3d sample(x, y, z);
-  // sample.normalize();
-  // Vec3d position; // Need to set this
-  // return std::make_tuple(position, getDirection(sample));
 
   std::tuple<Vec3d, Vec3d> returnTuple; 
 
@@ -79,56 +72,16 @@ std::tuple<Vec3d,Vec3d> DirectionalLight::firePhoton(BoundingBox* bBox = nullptr
     double distU = bBox->getMax()[(mAxis + 1) % 3] - bBox->getMin()[(mAxis + 1) % 3];
     double distV = bBox->getMax()[(mAxis + 2) % 3] - bBox->getMin()[(mAxis + 2) % 3];
 
-    double randU = ((double)rand() / (double) RAND_MAX) * distU * 2 + (bBox->getMin()[(mAxis + 1) % 3] - distU/2.0);
-    double randV = ((double)rand() / (double) RAND_MAX) * distV * 2 + (bBox->getMin()[(mAxis + 2) % 3] - distV/2.0);
+    // double randU = ((double)rand() / (double) RAND_MAX) * distU * 2 + (bBox->getMin()[(mAxis + 1) % 3] - distU/2.0);
+    // double randV = ((double)rand() / (double) RAND_MAX) * distV * 2 + (bBox->getMin()[(mAxis + 2) % 3] - distV/2.0);
+
+    double randU = ((double)rand() / (double) RAND_MAX) * distU + (bBox->getMin()[(mAxis + 1) % 3]);
+    double randV = ((double)rand() / (double) RAND_MAX) * distV + (bBox->getMin()[(mAxis + 2) % 3]);
 
     photonStartPt[(mAxis + 1) % 3] = randU;
     photonStartPt[(mAxis + 2) % 3] = randV;
 
     returnTuple = std::make_tuple(photonStartPt, orientation);
-
-    // else if(maxMag == abs(orientation[1]))
-    // {
-    //   // y has the largest pull
-    //   boxLengthDiv2 = (bBox->getMax()[1] - bBox->getMin()[1]) / 2.0; 
-
-    //   if(orientation[1] > 0)
-    //     photonStartPt[1] = bBox->getMin()[1] - boxLengthDiv2;
-    //   else
-    //     photonStartPt[1] = bBox->getMax()[1] + boxLengthDiv2;
-
-    //   double dX = bBox->getMax()[0] - bBox->getMin()[0];
-    //   double dZ = bBox->getMax()[2] - bBox->getMin()[2];
-
-    //   double randX = ((double)rand() / (double) RAND_MAX) * dX * 2 + (bBox->getMin()[0] - dX/2.0);
-    //   double randZ = ((double)rand() / (double) RAND_MAX) * dZ * 2 + (bBox->getMin()[2] - dZ/2.0);
-
-    //   photonStartPt[0] = randX;
-    //   photonStartPt[2] = randZ;
-
-    //   returnTuple = std::make_tuple(photonStartPt, orientation);
-    // }
-    // else
-    // {
-    //   // z has the largest pull
-    //   boxLengthDiv2 = (bBox->getMax()[2] - bBox->getMin()[2]) / 2.0; 
-
-    //   if(orientation[2] > 0)
-    //     photonStartPt[2] = bBox->getMin()[2] - boxLengthDiv2;
-    //   else
-    //     photonStartPt[2] = bBox->getMax()[2] + boxLengthDiv2;
-
-    //   double dX = bBox->getMax()[0] - bBox->getMin()[0];
-    //   double dY = bBox->getMax()[1] - bBox->getMin()[1];
-
-    //   double randX = ((double)rand() / (double) RAND_MAX) * dX * 2 + (bBox->getMin()[0] - dX/2.0);
-    //   double randY = ((double)rand() / (double) RAND_MAX) * dY * 2 + (bBox->getMin()[1] - dY/2.0);
-
-    //   photonStartPt[0] = randX;
-    //   photonStartPt[1] = randY;
-
-    //   returnTuple = std::make_tuple(photonStartPt, orientation);
-    // }
   }
 
   return returnTuple;

@@ -44,7 +44,7 @@ Vec3d DirectionalLight::getDirection(const Vec3d& P) const
 }
 
 // Random Sample the plane that contains the image of the scene bounds
-std::tuple<Vec3d,Vec3d> DirectionalLight::firePhoton(BoundingBox* bBox = nullptr) const {
+std::tuple<Vec3d,Vec3d> DirectionalLight::firePhoton(const BoundingBox* bBox = nullptr) const {
 
   std::tuple<Vec3d, Vec3d> returnTuple; 
 
@@ -114,7 +114,7 @@ Vec3d PointLight::getDirection(const Vec3d& P) const
   return ret;
 }
 
-std::tuple<Vec3d,Vec3d> PointLight::firePhoton(BoundingBox* bBox = nullptr) const {
+std::tuple<Vec3d,Vec3d> PointLight::firePhoton(const BoundingBox* bBox = nullptr) const {
   //double x = ((double)rand() - RAND_MAX/2)/(double)RAND_MAX;
   //double y = ((double)rand() - RAND_MAX/2)/(double)RAND_MAX;
   //double z = ((double)rand() - RAND_MAX/2)/(double)RAND_MAX;
@@ -179,12 +179,6 @@ std::tuple<Vec3d,Vec3d> PointLight::firePhoton(BoundingBox* bBox = nullptr) cons
       if(phiTemp > maxPhi) maxPhi = phiTemp;
     }
 
-    //now we have the min and max angles
-    // cout << "minTheta = " << minTheta << endl;
-    // cout << "maxTheta = " << maxTheta << endl;
-    // cout << "minPhi = " << minPhi << endl;
-    // cout << "maxPhi = " << maxPhi << endl;
-
     double theta = ((double)rand() / (double) RAND_MAX)*2.0*PI;
     double phi = acos(2.0*((double)rand() / (double) RAND_MAX)-1.0);
 
@@ -222,8 +216,8 @@ Vec3d PointLight::shadowAttenuation(const ray& r, const Vec3d& p) const
       if(i.t < RAY_EPSILON) return Vec3d(1,1,1);
     
       if (m.Trans()){
-        //return m.kd(i)% (Vec3d(1,1,1)- m.kt(i));
-        return m.kd(i) % m.kt(i);
+        return m.kd(i)% (Vec3d(1,1,1)- m.kt(i));
+        //return m.kd(i) % m.kt(i);
       }
       else{
         return Vec3d(0,0,0);

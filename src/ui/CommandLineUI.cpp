@@ -161,11 +161,13 @@ int CommandLineUI::run()
 		raytracer->traceSetup( width, height );
 
 		// PHOTON MAP
-		raytracer->firePhotons(m_numPhotons, m_flux);
 
 		std::vector<pixelBlock> pxBList =  getBlockList(width, height, 10, 10);
 
 		int numThreads = (getNumThreads() > 0) ? getNumThreads() : std::thread::hardware_concurrency();
+		
+		raytracer->firePhotons(m_numPhotons, m_flux, numThreads);
+
 		// numThreads = 1;
 		std::vector<std::vector<pixelBlock>> tPixelBlocks(numThreads);
 		std::vector<std::thread> ThreadList;

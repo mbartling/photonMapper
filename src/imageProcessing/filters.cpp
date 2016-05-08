@@ -1,4 +1,5 @@
 #include "filters.h"
+// #include <algorithm>
 
 void applyFilter( const unsigned char* sourceBuffer,
     int srcBufferWidth, int srcBufferHeight,
@@ -69,7 +70,12 @@ void applyGaussian(const unsigned char* sourceBuffer,
 void mergeImages(unsigned char* dest, const unsigned char* sourceBuffer1, const unsigned char* sourceBuffer2, int width, int height){
 
   for(int i = 0; i < 3*width*height; i++){
-    unsigned int x = sourceBuffer1[i] + sourceBuffer2[i];
+    unsigned int x1 = sourceBuffer1[i];
+    // unsigned int x2 = (sourceBuffer1[i] * sourceBuffer2[i])/255;
+    unsigned int x2 = sourceBuffer2[i];
+    // unsigned int x = (x1 > x2) ? x1 : x1 + x2;
+    // unsigned int x = x1 + x2;
+    unsigned int x = 255 - ((255 - x1)*(255 - x2))/255;
     if(x > 255) x = 255;
     dest[i] = (unsigned char) x;
   }

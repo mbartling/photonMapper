@@ -44,7 +44,7 @@ Vec3d DirectionalLight::getDirection(const Vec3d& P) const
 }
 
 // Random Sample the plane that contains the image of the scene bounds
-std::tuple<Vec3d,Vec3d> DirectionalLight::firePhoton(BoundingBox* bBox = nullptr) const {
+std::tuple<Vec3d,Vec3d> DirectionalLight::firePhoton(const BoundingBox* bBox = nullptr) const {
 
   std::tuple<Vec3d, Vec3d> returnTuple; 
 
@@ -114,7 +114,7 @@ Vec3d PointLight::getDirection(const Vec3d& P) const
   return ret;
 }
 
-std::tuple<Vec3d,Vec3d> PointLight::firePhoton(BoundingBox* bBox = nullptr) const {
+std::tuple<Vec3d,Vec3d> PointLight::firePhoton(const BoundingBox* bBox = nullptr) const {
   //double x = ((double)rand() - RAND_MAX/2)/(double)RAND_MAX;
   //double y = ((double)rand() - RAND_MAX/2)/(double)RAND_MAX;
   //double z = ((double)rand() - RAND_MAX/2)/(double)RAND_MAX;

@@ -66,8 +66,8 @@ void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
 	  // for (vector<Geometry*>::const_iterator giter = scene->beginObjectsBB(); giter != scene->endObjectsBB(); giter++)
 	  {
 	  	for(int i = 0; i < numPhotons; i++ ){
-	  		BoundingBox* pBox = new BoundingBox((*giter)->getBoundingBox().getMin(), (*giter)->getBoundingBox().getMax());
-		  	std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(pBox);
+	  		// BoundingBox* pBox = new BoundingBox((*giter)->getBoundingBox().getMin(), (*giter)->getBoundingBox().getMax());
+		  	std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(&(*giter)->getBoundingBox());
 
 		  	photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
 		  	if((*giter)->intersect(r, cur)){

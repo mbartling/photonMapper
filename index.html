@@ -22,8 +22,13 @@
       <h3>
 <a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h3>
 
-<p><img src="https://raw.githubusercontent.com/mbartling/photonMapper/master/Results/wineglass1_photonMap.bmp" alt="Wine Glass Photon Map">
-Photon mapping is a powerful tool </p>
+<p>Final project for CS384G Spring 2016 at the University of Texas at Austin</p>
+
+<p><img src="https://raw.githubusercontent.com/mbartling/photonMapper/master/Results/wineglass1_photonMap.bmp" alt="Wine Glass Photon Map"></p>
+
+<p>One of the problems faced in traditional ray tracing is global illumination. Though a certain degree of global illumination can be acheived in the traditional method (for instance, reflection, refraction, shadows), other effects such as caustics and diffuse-color-bleeding are not. Photon Mapping, a technique developed by Henrik Wann Jensen, resolves these issues. Whereas traditional ray tracing only accounts for the observer's perspective in the shading model, photon mapping incorporates both the observer's and the lights' perspectives. As such, effects that are easy to compute from the perspective of the light, such as caustics, and effects that are easy to compute from the user's perspective, such as specular reflections, and refractions, are all incorporated in the photon mapping shading model. </p>
+
+<p>In this blog post, we outline a basic overview of Photon Mapping, and present our implementation of it, along with a discussion of how our implementation differs from that in most literature. We also include some of the output images from our algorithm, separated out into three buffers: the first depicting the original (ray-traced) rendered, the second with the photon map, and the third depicting a screen overlay blending of the first two buffers. </p>
 
 <h3>
 <a id="photon-mapping-basics" class="anchor" href="#photon-mapping-basics" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Photon Mapping Basics</h3>

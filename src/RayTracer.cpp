@@ -71,7 +71,7 @@ void parallelFirePhotons(RayTracer* raytracer, vector<Geometry*>::const_iterator
 }
 void RayTracer::firePhotons(int numPhotons, Vec3d mFlux, int numThreads)
 {
-	int numLocalPhotons = (int)ceil(numPhotons/numThreads);
+	int numLocalPhotons = (int)ceil((float)numPhotons/(float)numThreads);
 	std::vector<std::thread> ThreadList(numThreads);
 
   for ( vector<Light*>::const_iterator litr = scene->beginLights(); 

@@ -35,7 +35,50 @@ Photon mapping is a powerful tool </p>
 <h3>
 <a id="our-architecture" class="anchor" href="#our-architecture" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Our Architecture</h3>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>Rather than computing aggregating the photons in the second pass, we opt to aggregate them in the first pass using a spatial hash. By predefining a bucket size (or sphere radius), we can trade spatial precision and accuracy for speed. In fact, this method achieves O(1) photon map access time. Furthermore, we no longer have to worry about the near neighbor search since this information is encoded directly into the data structure. In the second pass, we compute the raytraced image and photon map image simultaneously, but save their values into different buffers. Since we use a spatial hash, our photon map image is rather speckled, so we apply a gaussian blur before screen blending it with the raytraced image.  </p>
+
+<h4>
+<a id="creation-of-spatial-hash-pre---raytracing" class="anchor" href="#creation-of-spatial-hash-pre---raytracing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creation of Spatial Hash (Pre - Raytracing)</h4>
+
+<pre><code>firePhotons():
+    For each light source:
+        emit n photons towards the bounding boxes of each object (this step can be parallelized)
+        tracePhoton(depth)
+
+tracePhoton(depth):
+    if (photon intersects scene object AND object is closest object):
+        if surface not reflective and not refractive: 
+            absorb photon (see 3)
+        if surface reflective: 
+            if absorbPhoton( 1 - kr ): 
+                return
+            else if not absorbed:
+                reflect photon
+                tracePhoton(depth-1)
+        if surface is transmissive:
+            if absorbPhoton( 1 - kt ): 
+                return
+            else f not absorbed:
+                refract photon
+                tracePhoton(depth-1)
+
+//(The above method uses Russian Roulette. Since no new photon is created, energy is conserved.)
+// Absorb photon with probability p
+absorbPhoton(p):
+    if(rand() &lt; p):
+        photonMap[IntersectionPoint] += photon
+        return true
+    else:
+        return false
+</code></pre>
+
+<p>By this point, we have the flux at each position of the spatial hash. </p>
+
+<h4>
+<a id="creation-of-the-photon-buffer-during-raytracing" class="anchor" href="#creation-of-the-photon-buffer-during-raytracing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creation of the Photon Buffer (During Raytracing)</h4>
+
+<pre><code>PhotonColor = alpha * ImageColor + (1 - alpha) * photonMap[IntersectionPoint].flux 
+</code></pre>
 
 <h3>
 <a id="pretty-pictures" class="anchor" href="#pretty-pictures" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Pretty Pictures</h3>

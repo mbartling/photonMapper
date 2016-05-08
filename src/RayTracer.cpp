@@ -19,9 +19,12 @@ extern TraceUI* traceUI;
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
+#include <thread>
+#include <mutex>
 
 using namespace std;
 
+mutex mMutex;
 // Use this variable to decide if you want to print out
 // debugging messages.  Gets set in the "trace single ray" mode
 // in TraceGLWindow, for example.
@@ -49,10 +52,27 @@ std::pair<Vec3d,Vec3d> RayTracer::trace(double x, double y)
   return std::make_pair(mColor, mPhoton);
 }
 
-void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
-{
-
+void parallelFirePhotons(RayTracer* raytracer, vector<Geometry*>::const_iterator giter, Light* pLight, int numPhotons, Vec3d mFlux, int mDepth){
 	isect cur;
+ 	for(int i = 0; i < numPhotons; i++){
+
+	  // BoundingBox* pBox = new BoundingBox((*giter)->getBoundingBox().getMin(), (*giter)->getBoundingBox().getMax());
+	  std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(&(*giter)->getBoundingBox());
+	 	
+	 	photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
+	 	
+	 	if((*giter)->intersect(r, cur)){
+	  	raytracer->tracePhoton(r, mDepth);
+	 	}
+
+ 	}
+ 	return;
+
+}
+void RayTracer::firePhotons(int numPhotons, Vec3d mFlux, int numThreads)
+{
+	int numLocalPhotons = (int)ceil(numPhotons/numThreads);
+	std::vector<std::thread> ThreadList(numThreads);
 
   for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
   		litr != scene->endLights(); ++litr )
@@ -65,16 +85,11 @@ void RayTracer::firePhotons(int numPhotons, Vec3d mFlux)
 	  for (vector<Geometry*>::const_iterator giter = scene->beginObjects(); giter != scene->endObjects(); giter++)
 	  // for (vector<Geometry*>::const_iterator giter = scene->beginObjectsBB(); giter != scene->endObjectsBB(); giter++)
 	  {
-	  	for(int i = 0; i < numPhotons; i++ ){
-	  		// BoundingBox* pBox = new BoundingBox((*giter)->getBoundingBox().getMin(), (*giter)->getBoundingBox().getMax());
-		  	std::tuple<Vec3d,Vec3d> thing = pLight->firePhoton(&(*giter)->getBoundingBox());
-
-		  	photon r(std::get<0>(thing), std::get<1>(thing), mFlux, ray::VISIBILITY);
-		  	if((*giter)->intersect(r, cur)){
-			  	tracePhoton(r, traceUI->getDepth());
-		  	}
-
+	  	for(int i = 0; i < numThreads; i++ ){
+	  		ThreadList[i] = std::thread(parallelFirePhotons, this, giter, pLight, numLocalPhotons, mFlux, traceUI->getDepth());
 	  	}
+	  	for_each(ThreadList.begin(), ThreadList.end(), std::mem_fn(&std::thread::join) );
+
 	  }
   }
 
@@ -461,8 +476,11 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  fluxDecreased = r.flux;// * abs(i.N * r.getDirection()); // Need to update this
 	  // std::cout << "HERE" << std::endl;
 	  if(!m.Trans() && !m.Refl()){
+	  	mMutex.lock();
 		  if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 		  else scene->mSpatialHash[q] = r;
+	  	mMutex.unlock();
+
 	  }
 
 	  // if(!m.Refl() && !m.Trans()){
@@ -475,8 +493,11 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  	
 	  	// Russian Roulette
 	  	if(mRand > m.kr(i)[0]){
+	  		mMutex.lock();
+
 	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 			  else scene->mSpatialHash[q] = r;
+		  	mMutex.unlock();
 
 	  		return;
 	  	}
@@ -489,15 +510,17 @@ void RayTracer::tracePhoton(photon& r, int depth)
 	  }
 
 	  // Now handle the Transmission (Refraction)
-	  mRand = (double)rand()/(double)RAND_MAX;
+	  // mRand = (double)rand()/(double)RAND_MAX;
 	  if(m.Trans()){
 	  	//cout << "yes" << endl;
 	  	//cout << "m.kt(i)[0] = " << m.kt(i)[0] << endl;
 	    // Russian Roulette
 	  	if(mRand > m.kt(i)[0]){
+	  		mMutex.lock();
+
 	  		if(scene->mSpatialHash.count(q)) scene->mSpatialHash[q] += r;
 			  else scene->mSpatialHash[q] = r;
-
+			  mMutex.unlock();
 	  		return;
 
 	  	}

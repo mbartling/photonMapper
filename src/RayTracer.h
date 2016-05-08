@@ -23,7 +23,7 @@ public:
 	std::pair<Vec3d,Vec3d> trace(double x, double y);
 	std::pair<Vec3d,Vec3d> traceRay(ray& r, int depth);
   void tracePhoton(photon& r, int depth);
-  void firePhotons(int numPhotons, Vec3d mFlux);
+  void firePhotons(int numPhotons, Vec3d mFlux, int numThreads);
 	void getBuffer(unsigned char *&buf, unsigned char *&bufP, int &w, int &h);
 	double aspectRatio();
 
